@@ -1,5 +1,5 @@
 
-# tech-511-cloud-linux
+# tech-511-cloud-learning
 
 This repo contains my notes and learning on Cloud and Linux.
 
