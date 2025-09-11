@@ -3,5 +3,6 @@
 
 This repo contains my notes and learning on Cloud and Linux.
 
-Section: What is cloud?
->>>>>>> 24855a7 (Initial commit: setup repo)
+Section: What is Cloud?
+
+24855a7 (Initial commit: setup repo)
