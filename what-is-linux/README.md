@@ -10,6 +10,18 @@
 - [If you give permissions to the Other entity, what does this mean?](#if-you-give-permissions-to-the-other-entity-what-does-this-mean)
 - [You give the following permissions to a file: User permissions are read-only, Group permissions are read and write, Other permissions are read, write and execute. You are logged in as the user which is owner of the file. What permissions will you have on this file? Explain.](#you-give-the-following-permissions-to-a-file-user-permissions-are-read-only-group-permissions-are-read-and-write-other-permissions-are-read-write-and-execute-you-are-logged-in-as-the-user-which-is-owner-of-the-file-what-permissions-will-you-have-on-this-file-explain)
 - [Here is one line from the ls -l. Work everything you can about permissions on this file or directory.](#here-is-one-line-from-the-ls--l-work-everything-you-can-about-permissions-on-this-file-or-directory)
+- [What numeric values are assigned to each permission?](#what-numeric-values-are-assigned-to-each-permission)
+- [What numeric values would you use to assign read + write permissions?](#what-numeric-values-would-you-use-to-assign-read--write-permissions)
+- [What numeric values would you use to assign read, write and execute permissions?](#what-numeric-values-would-you-use-to-assign-read-write-and-execute-permissions)
+- [What numeric values would you use to assign read and execute permissions?](#what-numeric-values-would-you-use-to-assign-read-and-execute-permissions)
+- [Often, a file or directory's mode/permissions are represented by 3 numbers. What do you think 644 would mean?](#often-a-file-or-directorys-modepermissions-are-represented-by-3-numbers-what-do-you-think-644-would-mean)
+- [What command changes file permissions?](#what-command-changes-file-permissions)
+- [To change permissions on a file what must the end user be? (2 answers)](#to-change-permissions-on-a-file-what-must-the-end-user-be-2-answers)
+- [Give examples of some different ways/syntaxes to set permissions on a new file (named testfile.txt) to:](#give-examples-of-some-different-wayssyntaxes-to-set-permissions-on-a-new-file-named-testfiletxt-to)
+- [Set User to read, Group to read + write + execute, and Other to read and write only](#set-user-to-read-group-to-read--write--execute-and-other-to-read-and-write-only)
+- [Add execute permissions (to all entities)](#add-execute-permissions-to-all-entities)
+- [Take write permissions away from Group](#take-write-permissions-away-from-group)
+- [Use numeric values to give read + write access to User, read access to Group, and no access to Other.](#use-numeric-values-to-give-read--write-access-to-user-read-access-to-group-and-no-access-to-other)
 
 
 
@@ -144,3 +156,53 @@ In conclusion:
 * Group (staff): read & execute only.
 
 * Others: read-only.
+
+### What numeric values are assigned to each permission?
+* Read (r) = 4
+* Write (w) = 2
+* Execute (x) = 1
+* No permission = 0
+### What numeric values would you use to assign read + write permissions?
+Read + Write (rw-) = 4 + 2 = 6 
+### What numeric values would you use to assign read, write and execute permissions?
+Read + Write + Execute (rwx) = 4 + 2 + 1 = 7
+### What numeric values would you use to assign read and execute permissions?
+Read + Execute (r-x) = 4 + 1 = 5
+### Often, a file or directory's mode/permissions are represented by 3 numbers. What do you think 644 would mean?
+* 1st digit = Owner Permissions
+* 2nd digit = Group Permissions
+* 3rd digit = Other (everyone else) permissions 
+
+* Owner = 6 = read (4) + write (2) → rw-
+
+* Group = 4 = read only → r--
+
+* Others = 4 = read only → r--
+
+So 644 means:
+
+* Owner can read and write
+
+* Group can only read
+
+* Others can only read
+
+### What command changes file permissions?
+chmod
+
+### To change permissions on a file what must the end user be? (2 answers)
+* The owner of the file.
+* Or the superuser (root) 
+### Give examples of some different ways/syntaxes to set permissions on a new file (named testfile.txt) to:
+### Set User to read, Group to read + write + execute, and Other to read and write only
+chmod u=r, g=rwx, o=rw testfile.txt
+### Add execute permissions (to all entities)
+chmod a+x testfile.txt
+### Take write permissions away from Group
+chmod g-w testfile.txt
+### Use numeric values to give read + write access to User, read access to Group, and no access to Other.
+User: read(4) + write (2) = 6
+Group: read (4) = 4
+Other: none (0)
+
+chmod 640 testfile.txt

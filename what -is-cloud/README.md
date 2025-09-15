@@ -78,9 +78,9 @@ Adv:
   
 On-premises: In control of everything but also responsible. Example of tasks that the software can do: data, applications, runtime, middleware, o/s, virtualisation, servers, storage and networking.
 
-Iaas: You manage data, applications, runtime, middleware, o/s. Provider manages virtualisation, servers, storage, networking. An example is a vm.
+IaaS: You manage data, applications, runtime, middleware, o/s. Provider manages virtualisation, servers, storage, networking. An example is a vm.
 
-Paas: You manage data and applications. Provider manages runtime, middleware, o/s, virtualisation, server, storage and networking. An example is an app service. To make sure security top-notch, you need to make sure the code is secure and runs without errors.
+PaaS: You manage data and applications. Provider manages runtime, middleware, o/s, virtualisation, server, storage and networking. An example is an app service. To make sure security top-notch, you need to make sure the code is secure and runs without errors.
 
 SaaS: You manage the data. Provider manages applications, runtime, middleware, o/s, virtualisation, servers, storage and networking. A few examples are, ServiceNow, SalesForce, Office365. You run the code. 
 
@@ -122,7 +122,7 @@ CapEx
 * Going to depend on the organisation 
 
 2 types of calculators to help determine:
-* Total Cost of Ownership (TCO) calculator
+* Total Cost of Ownership (TCO) calculator - if it's worth migrating to the cloud
 * Cost Calculator
 
 ### Guaranteed levels of service
