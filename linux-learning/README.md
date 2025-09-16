@@ -6,6 +6,9 @@
 - [What is a shell?](#what-is-a-shell)
 - [Diff between home and root directories](#diff-between-home-and-root-directories)
 - [Walkthrough Commands](#walkthrough-commands)
+  - [Bash script to install nginx](#bash-script-to-install-nginx)
+- [Manage Processes](#manage-processes)
+  - [What is a process?](#what-is-a-process)
 
 ## Why learn Linux?
 
@@ -93,5 +96,39 @@ if you start a file/folder path with '/', you are saying the path starts in the 
 * mv command can move files to different folders but also rename them. 
 * cp= copy files 
 * / = root directory
-* tilde = home directory. 
+* tilde/~ = home directory. 
 * nano prov-nginx.sh opens bash terminal. 
+
+* Bash is the shell that interprets with the user in terminal/CLI. 
+* q for quit and ctrl+c for exit. (in status terminal for nginx)
+* export is variable environment.
+* A variable is used inside a script and called when needed. But if you need it as a client then it is an environment variable.
+* Environment variable only get called from that specific bash shell. So if you open another instance, the variable will be gone.
+* Source command can load configuration commands. Can load bash scripts without having to log back in.
+
+### Bash script to install nginx
+[prov-nginx.sh](bash-scripts/prov-nginx.sh)
+
+## Manage Processes
+
+### What is a process?
+* A program that loads in RAM/memory and uses CPU when needed.
+* When a process is run, a process ID is given (PID).
+* To run the command, it is ps.
+* Can log in to the same instance more than once. When used the ps command, you can see the ID is different.
+* LIST ALL PROCESSES : ps aux (REMEMBER)
+2 types of processes in Linux:
+ * System
+ * User 
+* With 'top' command, it orders it by CPU storage.
+* memory uiltised - press M
+* PID - press N (by newest at the top)
+* CPU - press P
+* sleep - makes terminal sleep for a few seconds
+* sleep second & - makes terminal sleep in the background. Doesn't stop tasks/jobs from running. 
+* To kill sleep: kill -1 PID
+* Meduim kill: kill PID (not standard level)
+* Brutal kill: kill -9 PID
+* pm2 process: manages the running of certain apps
+* Node app uses pm2 to run app. 
+* If you do a brutal kill, you may be in risk of a zombie process since it can kill the parent process but still kill the child kill. 

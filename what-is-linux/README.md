@@ -30,14 +30,20 @@
 * Linux is a multi-user OS.
 * File ownership controls who can access or modify files.
 * Prevents unauthorised access and protect system stability (e.g., stopping normal users from changing /etc/passwd).
-
+* To find linux version: uname -a.
 
 ### What is the command to view file ownership?
 
 ls - l
-
+ls -ln: used when user/group name not available. 
 
 ### What permissions are set when a user creates a file or directory? Who does file or directory belong to?
+
+* New files start with mode 666 (rw-rw-rw-) before umask is applied.
+  
+* New directories start with mode 777 (rwxrwxrwx) before umask is applied.
+
+* Then umask subtracts bits (it's a mask of bits to remove).
 
 * Ownership: File belongs to the user who created it and their primary group.
 
@@ -66,9 +72,11 @@ chmod +x script.sh
 
 ### What command is used to change the owner of a file or directory?
 
-* Use chown:
+* chmod changes file permissions
 
-* Change owner:
+* Use chown: changes owner and optionally group
+
+* Change owner: chgrp changes only the group
 
 sudo chown bob file.txt
 
@@ -104,11 +112,15 @@ sudo chown -R bob:staff myfolder/
 
 * They share whatever permissions are set under the “group” column.
 
+* E.g. chmod g+r filename.txt means that everyone in the file's group can read the file.
+
 ### If you give permissions to the Other entity, what does this mean?
 
 * The Other entity = applies to all other users on the system (not the owner, not in the group).
 
 * Typically the most restrictive, since it covers "everyone else."
+
+* e.g. chmod o+x file.sh lets any user on the system execute the file. 
 
 ### You give the following permissions to a file: User permissions are read-only, Group permissions are read and write, Other permissions are read, write and execute. You are logged in as the user which is owner of the file. What permissions will you have on this file? Explain.
 
