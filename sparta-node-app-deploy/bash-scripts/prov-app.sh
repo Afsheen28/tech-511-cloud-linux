@@ -1,13 +1,21 @@
 #!/bin/bash
 
+#Tested on: AWS, Ubunti 22.04 LTS
+#Planning for it to work on: New VM and idempotent
+#Tested by: Afsheen
+# Tested when: 17/9/25
+
+
+
 echo Update...
-sudo apt update -y
+sudo DEBIAN_FRONTEND=noninteractive
+sudo apt update 
 echo Done!
 echo 
 
 #asks for user input - FIX!
 echo Upgrade...
-sudo apt upgrade -y
+sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y -q
 echo Done!
 echo 
 
@@ -17,13 +25,13 @@ sudo apt install -y nginx
 echo Done!
 echo
 
-#comfigure nginx
+#configure nginx
 echo Restart nginx...
 sudo systemctl restart nginx 
 echo Done!
 echo
 
-echo Download script to install nod js v20
+echo Download script to install node js v20
 curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
 echo Done!
 echo
@@ -52,3 +60,15 @@ echo
 echo Start app in background...
 nohup node app.js > app.log 2>&1 &
 echo App started in background!
+
+#Get app code using git clone 
+
+#cd into app folder
+
+#set env var DB_HOST
+export DB_HOST=mongodb://54.194.224.43:27017/posts
+
+#run npm install
+
+#run app in background with pm2
+

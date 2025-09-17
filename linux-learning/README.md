@@ -104,6 +104,7 @@ if you start a file/folder path with '/', you are saying the path starts in the 
 * export is variable environment.
 * A variable is used inside a script and called when needed. But if you need it as a client then it is an environment variable.
 * Environment variable only get called from that specific bash shell. So if you open another instance, the variable will be gone.
+* Environment variable could be accessed from any software and tool that needs to use it.
 * Source command can load configuration commands. Can load bash scripts without having to log back in.
 
 ### Bash script to install nginx
@@ -120,15 +121,19 @@ if you start a file/folder path with '/', you are saying the path starts in the 
 2 types of processes in Linux:
  * System
  * User 
+* System processes are used in the system and starts other processes. For example, nginx was stored as a system process. 
 * With 'top' command, it orders it by CPU storage.
 * memory uiltised - press M
 * PID - press N (by newest at the top)
 * CPU - press P
 * sleep - makes terminal sleep for a few seconds
 * sleep second & - makes terminal sleep in the background. Doesn't stop tasks/jobs from running. 
-* To kill sleep: kill -1 PID
-* Meduim kill: kill PID (not standard level)
-* Brutal kill: kill -9 PID
+* To kill sleep: kill -1 PID (hangup)
+* Meduim kill: kill PID (not standard level) (terminate)
+* Brutal kill: kill -9 PID (kill)
 * pm2 process: manages the running of certain apps
 * Node app uses pm2 to run app. 
-* If you do a brutal kill, you may be in risk of a zombie process since it can kill the parent process but still kill the child kill. 
+* If you do a brutal kill, you may be in risk of a zombie process since it can kill the parent process but still kill the child process. 
+* sudo lsof -i :3000 -P -n command can tell us what command is running the app on port 3000 if we wanted to stop the app and ctrl+c/ctrl+z didn't work. 
+* After killing the command, we can restart the app. Might need to do a brute kill if the standard one doesn't work.
+* After killing, check if the command is still running using the above code. If not, restart the app.
