@@ -62,13 +62,50 @@ nohup node app.js > app.log 2>&1 &
 echo App started in background!
 
 #Get app code using git clone 
+echo install git
+sudo apt-get install git
+echo Done!
+echo
+
+#copy url
+echo copy repo url using https
+git clone <repo-url>
+echo Done!
+echo
+
+#move into repo
+echo move into repo
+cd repo
+echo Done!
+echo
+
+#copy app folder into repo
+echo copy app folder into repo
+cp -r ~/tech511-sparta-app/app ~/
+echo Done!
+echo
+
+#Asked for a username and password
+username:Afsheen28
+password: Personal Access Token
+
 
 #cd into app folder
 
 #set env var DB_HOST
-export DB_HOST=mongodb://54.194.224.43:27017/posts
+export DB_HOST=mongodb://54.194.224.43:27017/posts #(IP will change everytime)
 
 #run npm install
 
 #run app in background with pm2
 
+sudo npm install -g pm2
+pm2 logs tech511-sparta-app
+app pm2 logs tech511-sparta-app
+pm2 start app.js --name tech511-sparta-app
+pm2 list
+pm2 stop tech511-sparta-app
+pm2 restart tech511-sparta-app
+pm2 startup systemd
+app pm2 save
+pm2 logs tech511-sparta-app

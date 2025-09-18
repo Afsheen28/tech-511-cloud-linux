@@ -26,7 +26,7 @@ echo
 
 echo Get gpg key for mongodb
 curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
-   sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+   sudo DEBIAN_FRONTEND=noninteractive gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
    --dearmor
 echo Done!
 echo
@@ -55,6 +55,19 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
 echo Done!
 echo
 
+#backup mongod.conf
+echo Backing up /etc/mongod.conf
+sudo cp /etc/mongod.conf /etc/mongod.conf.bak
+echo Backup complete!
+echo
+
+#use sed to change bindIp
+echo Updating bindIp from 127.0.0.1 to 0.0.0.0...
+sudo sed -i 's/bindIp: 127\.0\.0\.1/bindIp: 0.0.0.0/' /etc/mongod.conf
+echo Done!
+echo
+
+
 #use sed command to edit /etc/mongod.conf, change bindIp from 127.0.0.1 to 0.0.0.0
 
 echo Start Mongodb
@@ -63,7 +76,7 @@ echo Done
 echo
 
 echo enable mongod
-echo systemctl enable mongod
+sudo systemctl enable mongod
 echo Done!
 echo
 
