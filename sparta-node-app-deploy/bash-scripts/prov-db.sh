@@ -32,7 +32,7 @@ echo Done!
 echo
 
 echo create list file for mongodb
-echo echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 echo Done!
 echo
 
@@ -80,8 +80,46 @@ sudo systemctl enable mongod
 echo Done!
 echo
 
-
-
-
-
 #localhost: 127.0.0.1. Computer talks to itself. Lookback address.
+
+
+
+
+#!/bin/bash
+
+# Purpose: Provision MongoDB v7 for Sparta test app
+# Tested on: Ubuntu 22.04 LTS
+# Idempotent: Yes (safe to rerun)
+# Author: Afsheen
+# Last Tested: 19/09/2025
+
+set -e
+
+echo "=== Updating system ==="
+sudo apt update -y
+sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y -q
+
+echo "=== Installing prerequisites ==="
+sudo apt install -y gnupg curl
+
+echo "=== Adding MongoDB GPG key and repo ==="
+curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+   sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] \
+https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | \
+sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+
+echo "=== Installing MongoDB 7.0 ==="
+sudo apt update -y
+sudo DEBIAN_FRONTEND=noninteractive apt install -y mongodb-org
+
+echo "=== Backing up and updating mongod.conf ==="
+sudo cp /etc/mongod.conf /etc/mongod.conf.bak || true
+sudo sed -i 's/bindIp: 127\.0\.0\.1/bindIp: 0.0.0.0/' /etc/mongod.conf
+
+echo "=== Enabling and starting MongoDB ==="
+sudo systemctl enable mongod
+sudo systemctl restart mongod
+
+echo "=== MongoDB setup complete! ==="

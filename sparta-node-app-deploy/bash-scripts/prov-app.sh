@@ -53,7 +53,7 @@ echo Done!
 echo
 
 echo Install app dependencies...
-npm install
+npm install #triggers node seeds/seed.js
 echo Done!
 echo
 
@@ -69,13 +69,13 @@ echo
 
 #copy url
 echo copy repo url using https
-git clone <repo-url>
+git clone https://github.com/Afsheen28/tech511-sparta-app.git
 echo Done!
 echo
 
 #move into repo
 echo move into repo
-cd repo
+cd tech511-sparta-app/app
 echo Done!
 echo
 
@@ -109,3 +109,65 @@ pm2 restart tech511-sparta-app
 pm2 startup systemd
 app pm2 save
 pm2 logs tech511-sparta-app
+
+#ubuntu@ip-172-31-42-26:~$ cd ~/tech511-sparta-app/app
+#ubuntu@ip-172-31-42-26:~/tech511-sparta-app/app$ export DB_HOST=mongodb://172.31.35.61:27017/posts
+#ubuntu@ip-172-31-42-26:~/tech511-sparta-app/app$ node seeds/seed.js
+#Connected to database
+#Database cleared
+#Database seeded with 100 records
+#Database connection closed
+#Means database connection works
+
+
+
+#!/bin/bash
+
+# Purpose: Provision Node.js and Sparta test app
+# Tested on: Ubuntu 22.04 LTS
+# Idempotent: Yes (safe to rerun)
+# Author: Afsheen
+# Last Tested: 19/09/2025
+
+set -e
+
+APP_DIR=~/tech511-sparta-app/app
+DB_HOST="mongodb://<DB_VM_PRIVATE_IP>:27017/posts"  # REPLACE with your DB VM private IP
+
+echo "=== Updating system ==="
+sudo apt update -y
+sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y -q
+
+echo "=== Installing prerequisites ==="
+sudo apt install -y curl git
+
+echo "=== Installing Node.js v20 ==="
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+echo "=== Installing PM2 globally ==="
+sudo npm install -g pm2
+
+echo "=== Cloning Sparta app repo ==="
+if [ ! -d "$APP_DIR" ]; then
+  git clone https://github.com/Afsheen28/tech511-sparta-app.git ~/tech511-sparta-app
+fi
+
+echo "=== Moving into app directory ==="
+cd $APP_DIR
+
+echo "=== Setting DB_HOST environment variable ==="
+export DB_HOST=$DB_HOST
+
+echo "=== Installing dependencies and seeding DB ==="
+npm install
+
+echo "=== Starting app with PM2 ==="
+pm2 start app.js --name tech511-sparta-app || pm2 restart tech511-sparta-app --update-env
+
+echo "=== Saving PM2 process list ==="
+pm2 save
+pm2 startup systemd -u ubuntu --hp /home/ubuntu
+
+echo "=== App setup complete! Visit http://<APP_VM_PUBLIC_IP>:3000/posts ==="
+
