@@ -99,7 +99,7 @@ echo
 #cd into app folder
 
 #set env var DB_HOST
-export DB_HOST=mongodb://34.255.215.17:27017/posts #(IP of db vm will change everytime)
+export DB_HOST=mongodb://3.250.235.92:27017/posts #(IP of db vm will change everytime)
 
 #run npm install
 
