@@ -25,6 +25,12 @@ sudo apt install -y nginx
 echo Done!
 echo
 
+#reverse proxy 
+echo Reverse proxy using sed command...
+sudo sed -i 's|try_files.*|proxy_pass http://127.0.0.1:3000;|' /etc/nginx/sites-available/default
+echo Done!
+echo
+
 #configure nginx
 echo Restart nginx...
 sudo systemctl restart nginx 
@@ -86,14 +92,14 @@ echo Done!
 echo
 
 #Asked for a username and password
-username:Afsheen28
-password: Personal Access Token
+#username:Afsheen28
+#password: Personal Access Token
 
 
 #cd into app folder
 
 #set env var DB_HOST
-export DB_HOST=mongodb://54.194.224.43:27017/posts #(IP will change everytime)
+export DB_HOST=mongodb://34.245.99.163:27017/posts #(IP will change everytime)
 
 #run npm install
 
@@ -120,6 +126,7 @@ pm2 logs tech511-sparta-app
 #Means database connection works
 
 
+#--------------------------------------------------------------------------------------------------------------
 
 #!/bin/bash
 
@@ -132,7 +139,7 @@ pm2 logs tech511-sparta-app
 set -e
 
 APP_DIR=~/tech511-sparta-app/app
-DB_HOST="mongodb://<DB_VM_PRIVATE_IP>:27017/posts"  # REPLACE with your DB VM private IP
+DB_HOST="mongodb://54.78.8.81:27017/posts"  # REPLACE with your DB VM private IP
 
 echo "=== Updating system ==="
 sudo apt update -y
@@ -169,5 +176,5 @@ echo "=== Saving PM2 process list ==="
 pm2 save
 pm2 startup systemd -u ubuntu --hp /home/ubuntu
 
-echo "=== App setup complete! Visit http://<APP_VM_PUBLIC_IP>:3000/posts ==="
+echo "=== App setup complete! Visit http://18.201.143.98:3000/posts ==="
 
