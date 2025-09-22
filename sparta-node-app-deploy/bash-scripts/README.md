@@ -8,7 +8,7 @@
 
 * After that, type this: sudo sed -i 's|try_files.*|proxy_pass http://127.0.0.1. This replaces the port 3000 with just the IP address.
   
-* Then do sudo systemctl restart nginx. This restrats the app after all the updates.
+* Then do sudo systemctl restart nginx. This restart the app after all the updates.
 
 * Finally, do npm install to get the database connected and the records seeded again.
 
