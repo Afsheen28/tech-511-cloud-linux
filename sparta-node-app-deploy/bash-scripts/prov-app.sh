@@ -99,7 +99,7 @@ echo
 #cd into app folder
 
 #set env var DB_HOST
-export DB_HOST=mongodb://3.250.235.92:27017/posts #(IP of db vm will change everytime)
+export DB_HOST=mongodb://172.31.25.165:27017/posts #(private IP of db vm will change everytime)
 
 #run npm install
 
@@ -139,7 +139,7 @@ pm2 logs tech511-sparta-app
 set -e
 
 APP_DIR=~/tech511-sparta-app/app
-DB_HOST="mongodb://172.31.56.172/posts"  # REPLACE with your DB VM private IP
+DB_HOST="mongodb://172.31.57.28/posts"  # REPLACE with your DB VM private IP
 
 echo "=== Updating system ==="
 sudo apt update -y
@@ -176,5 +176,5 @@ echo "=== Saving PM2 process list ==="
 pm2 save
 pm2 startup systemd -u ubuntu --hp /home/ubuntu
 
-echo "=== App setup complete! Visit http://34.241.195.159:3000/posts ==="
+echo "=== App setup complete! Visit http://34.254.242.79:3000/posts ==="
 

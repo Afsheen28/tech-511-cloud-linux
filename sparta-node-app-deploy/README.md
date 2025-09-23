@@ -13,3 +13,4 @@
 * [Manually] (sparta-node-app-deploy\manual\README.md) 
 * Automated
 
+*Nginx is not dependent on port 3000 to run the app. We are able to run the app without nginx. Nginx basically runs the app on port 80 by redirecting traffic to port 3000 to allow the app to run. 
