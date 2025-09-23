@@ -1,4 +1,4 @@
-# add sed to replace file with another file. E.g. ip address
+# add sed to replace file with another file. E.g. bindIP address
 
 
 #For reverse proxy app:
