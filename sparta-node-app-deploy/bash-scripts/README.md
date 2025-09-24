@@ -77,7 +77,7 @@ nginx redirects incoming traffic to no port. It's used only for reverse proxy.
 
 * Could also run the bash scripts and then create an AMI. 
 
-* Having an AMI would save us from, having to manually deploy every time; i.e. get the app running.
+* Having an AMI would save us from, having to manually deploy every time; i.e. get the app running faster.
 
 ## Intro into the app
 
@@ -90,3 +90,35 @@ nginx is used as a reverse proxy to directly paste the IP address into the web b
 If 502 error occurs, it means nginx is correctly set up as it is accessible by http protocol, there would be issues concerning npm install or launching the node app from node.js.
 
 When accessing the app, it must be considered how long you give the page to load, as the app still needs to set up. 
+
+ ## Monolith VS Two-tier architecture
+
+### Monolith Architecture
+* Mono: single architecture
+* Importing other modules/code into a single file.
+* Running one main file that is dependent on other files. 
+* The User interface ensures user input. 
+* After user inputs data, you have a database where the information is stored. 
+* For the database to be connected with the code, there is a data access layer. 
+* Between this and the user interface, there is a business logic. This is essentially how the code's logic will help solve the problem.
+* This was all one piece of code one in one file/ one block of code. 
+* Would only run on one machine. 
+* Once the code is running, the whole code with all layers will run.
+* One big disadvantage is that even if one layer doesn't work, then the whole will stop working. There will be no back-ups to help save the code.
+* Cannot be scaled.
+* Another disadvantage is that if there is a power cut or the machine stops working, there will be no backed up database to help the app run.
+* Would be useful to deploy the app using a monolithic architecture due to it's less complexity if it is a nice simple application.
+
+### 2-tier architecture
+* Will be working on separate machines.
+* Will not need to be relying on the database/certain files. 
+* More complexity in this architecture in terms of deployment. 
+* Some components will talk to their own database. 
+* User interfaces could be broken down and be talking to different APIs (business logic) and databases. But they all run in different places. 
+* Micro-service architecture (more complicated).
+* Would run code in different containers. 
+* Could scale different layers.
+* An advantage woudld be that if one component is down, we can just fix that one component and get the code running. Rather than running the whole code. 
+* A disadvantage would be the complexity and the additional components when running the code.
+
+
