@@ -2,6 +2,14 @@
 - [1. Vertical:](#1-vertical)
 - [2: Horizontal:](#2-horizontal)
 - [AWS Auto Scaling:](#aws-auto-scaling)
+- [Steps to create Auto Scaling in AWS:](#steps-to-create-auto-scaling-in-aws)
+- [1. First create a launch template:](#1-first-create-a-launch-template)
+- [2. Then create an Auto Scaling Group:](#2-then-create-an-auto-scaling-group)
+- [How to delete auto scaling groups:](#how-to-delete-auto-scaling-groups)
+- [Extra Notes:](#extra-notes)
+- [Why use Auto Scaling?](#why-use-auto-scaling)
+- [Code - along Notes](#code---along-notes)
+- [CPU Usage Alarm](#cpu-usage-alarm)
 
 
 
@@ -42,11 +50,12 @@
 * For example: If VM1 has 20% work load, VM2 has 90% workload and CPU has a distribution of 50%, then a new VM would be created (20+90/2) = 55%. So new instance will be created. 
 * The load balancer will be distributing the work laod across the VMs to make them "healthy". This will be created from the internet (HTTP).
 * There will always be 2 in case one stops working. This is so that the workload still gets balanced out and spread across the availability zones. 
+* In terms of app deployment, we can acheive high availabilty by having different availabilty zones.
+* We can acheive scalability through the scaling group. 
 
+## Steps to create Auto Scaling in AWS:
 
-Steps to create Auto Scaling in AWS:
-
-1. First create a launch template:
+## 1. First create a launch template:
    * Launch template name: tech511-afsheen-for-asg-sparta-app-lt
    * Go down to Application and OS images (Amazon Machine Image) and select 'My AMIs'.
    * Then click the (default) option "Owned by me".
@@ -64,13 +73,13 @@ Steps to create Auto Scaling in AWS:
    
    * After launching the template, test it to make sure it works. 
    * Hover over the "Actions" button and click "Launch instance from template".
-   * Notice how everything is filled in before creating an instance, saving time. 
+   * Notice how everything is filled in before creating an instance, saving time. The purpose of having a launch template is to have every rule/configurations ready so that we can get started on making the Auto Scaling group.
    * Launch the instance and click on the public IP address to see if you are able to see the starting page of the Sparta App.
    * May need to wait for 4-5 secs or so for the whole app provision script to run.
    * This is because the whole VM has to be created, and then it has to boot up the app and then finally run the app. 
    * But in this case, since we only put in a few commands from the app prov script, it only needs about 40 secs or so to run. 
 
-2. Then create an Auto Scaling Group:
+## 2. Then create an Auto Scaling Group:
    * Click on the "Auto Scaling Groups" tabs on the left right at the bottom.
    * Then click "Create Auto Scaling Group" at the top right.
    * Write "tech511-afsheen-sparta-app-asg" in the Auto Scaling group name.
@@ -93,16 +102,70 @@ Steps to create Auto Scaling in AWS:
    * Write "Name" in Key and "tech511-afsheen-sparta-app-HA-SC" in Value.
    * After it gets created, click on the auto scaling group, and click on the instance under "instances management" to check if they're working and showing the app. 
    * Click on the "load balancing target group" link under "Integrations - new" tab.
-   * When you have healthy instances, it means everything is good. 
+   * When you have healthy instances, it means everything is good. An instance needs to be confirmed healthy if the node app is up and running and if the status given is running. Also, it checks if the CPU load is set to 50% making sure that the load balancer can distribute the work load between the AMIs.
    * When you go to the target group, you can see the distribution of work load under "Distribution of targets by Availability Zone (AZ)".
    * Once you click on the Load balancer link, click the DNS link and that will get a public IP address and connect to the app. 
   
 * Click on instances, find your instances and terminate them.
 * If you terminate one of them, there might be a slight interuption but another instance will be made and run the app. This is because we selected 2 as minimum. 
 
-How to delete auto scaling groups: 
+## How to delete auto scaling groups: 
 
 1. First delete load balancer. May need to confirm.
 2. Then delete target group. 
 3. Then delete auto scaling group by going on auto scaling group, selecting it and terminating it. Will need to confirm deletion.
 4. Leave the app and db AMI but delete the instances. 
+
+
+## Extra Notes:
+* We may have unhealthy instances in a target group when the CPU is overloading and there is a higher demand to have another instance but no capabilty of doing so. 
+* If an instance is healthy and gets a 200 status code back, we will get that health check response on the HTTP port (80). 
+* An unhealthy instance might be temporarily there in the target group but another one will be made to balance the load and the unhealthy one will be deleted.
+* Scaling groups will follow horizontal scaling.
+* Launch templates will not need to be mentioned of the availability zones or the "Name" key-pair value because the data from the Auto Scaling group will already handle it. 
+
+
+
+## Why use Auto Scaling?
+
+![alt text](image-2.png)
+
+* Imagine you have a running app VM, and there is no monitoring going it. This means that there is monitoring but you are just not using it.
+* CPU load gets too high and machine could crash in the worst case scenario (falls over).
+* Now a better solution could be to have the app VM instance running and having a Cloud Watch monitor that manages the CPU load.
+* Could have a dashboard, charting the CPU load, to help see if something is going over the threshold and if so, then to run/fix something manually. 
+* However, without some sort of notifications letting us know of the CPU overload, it could cause problems as humans could not be watching the screen 24/7.
+* A better solution is the app VM could include CW monitoring for the CPU load and then having some sort of an alarm that lets us know about the CPU overload. This alarm could then be notified via notifications through SMS, email or call.
+* The best solution for this is Auto Scaling. When you have an app VM running, and then having a CW monitoring for the CPU load, you can Auto Scale that lets you know about the CPU overload and fixes it by creating a new instance and distributing the workload. 
+
+
+## Code - along Notes
+1. First create an instance from our existing AMI by going on "launch template".
+2. Every rule must be kept the same except add a key-pair value. Remember "Name" for key and then as the value I've kept "tech511-afsheen-sparta-lt". This will be you instance name too.
+3. Check the app is working by clicking on the public IP address. May need to wait for a while. Did get 502 bad gateway error and just kept reloading the page.
+4. Then connect SSH to a new git bash terminal. You may be told to log in as an Ubuntu user. 
+5. Update the dependencies by typing this command: 
+   * sudo apt update -y && sudo apt upgrade -y
+6. Then install apache to allow you to load test the VM:
+   * sudo apt-get install apache2-utils
+7. Then in your instance details, scroll down to "Monitoring" and create a new dashboard. 
+8. To do this, click on the 3 dots on the right and a new tab will open to create a new dahsboard. Name it and press "create" first, then confirm.
+9. On the top right, where it says "Manage detailed monitoring", a tab of "detailed monitoring" will open and you click "enable". 
+10. Then edit the configurations to 1 min, every 1 hour. We looked at "CPU utilization".
+11. Then on the git bash terminal, type this command and see the spikes in the graph.
+   * ab -n 1000 -c 100 http://yourwebsite.com/
+   * code means to make 1000 requests in 100 requests at a time. 
+   * Put in public IP address.
+   * This is used to get us the CPU load metric. 
+   * We can identify this by managing the CPU workload and make sure we don't go overloading the machine and setting a threshold. 
+
+![alt text](image-3.png)
+
+
+## CPU Usage Alarm
+
+Follow this to help create an alarm: 
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/US_AlarmAtThresholdEC2.html
+
+* I created the theshold as 7. 
+![alt text](image-4.png)
