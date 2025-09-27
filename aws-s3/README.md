@@ -70,8 +70,37 @@ Should be aws-cli/1.42.38 Python/3.10.12 Linux/6.8.0-1039-aws botocore/1.40.38
     remove_bucket: tech511-afsheen-first-bucket
     * If you do ls: 
     * An error occurred (NoSuchBucket) when calling the ListObjectsV2 operation: The specified bucket does not exist
-  
- 
+
+
+## Code - along notes to create dashboard
+1. First create an instance from our existing AMI by going on "launch template".
+2. Every rule must be kept the same except add a key-pair value. Remember "Name" for key and then as the value I've kept "tech511-afsheen-sparta-lt". This will be you instance name too.
+3. Check the app is working by clicking on the public IP address. May need to wait for a while. Did get 502 bad gateway error and just kept reloading the page.
+4. Then connect SSH to a new git bash terminal. You may be told to log in as an Ubuntu user. 
+5. Update the dependencies by typing this command: 
+   * sudo apt update -y && sudo apt upgrade -y
+6. Then install apache to allow you to load test the VM:
+   * sudo apt-get install apache2-utils
+7. Then in your instance details, scroll down to "Monitoring" and create a new dashboard. 
+8. To do this, click on the 3 dots on the right and a new tab will open to create a new dahsboard. Name it and press "create" first, then confirm.
+9. On the top right, where it says "Manage detailed monitoring", a tab of "detailed monitoring" will open and you click "enable". 
+10. Then edit the configurations to 1 min, every 1 hour. We looked at "CPU utilization".
+11. Then on the git bash terminal, type this command and see the spikes in the graph.
+   * ab -n 1000 -c 100 http://yourwebsite.com/
+   * code means to make 1000 requests in 100 requests at a time. 
+   * Put in public IP address.
+   * This is used to get us the CPU load metric. 
+   * We can identify this by managing the CPU workload and make sure we don't go overloading the machine and setting a threshold. 
+
+![alt text](image-1.png)
+
+## CPU Usage Alarm Notes
+
+Follow this to help create an alarm: 
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/US_AlarmAtThresholdEC2.html
+
+* I created the theshold as 7. 
+![alt text](image-2.png)
 
 ## Extra Notes
 * Would not be good to use AWS S3 if you need someone to edit files and need some sort of a locking mechanism on the files. 
