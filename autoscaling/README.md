@@ -25,7 +25,7 @@
 
 ### 2: Horizontal:
 
-* Imagine you have a small app VM, as the workload increases, more machines will be made to also run antoehr instance of the app. 
+* Imagine you have a small app VM, as the workload increases, more machines will be made to also run another instance of the app. 
 * Mostly, the machines created will be identical but not necessary. 
 * This can me done manually or also automatically.
 * This is referred to "scale in" if only one machine is necessary and "scale out" if more machines are made.

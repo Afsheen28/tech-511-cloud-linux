@@ -59,6 +59,7 @@
 ![alt text](image-1.png)
 
 * Overall VPC will have a private IP address that is locked. For example, in 10.0.0.0/16, the 10.0 will be locked. 
+* We will have a custom VPC due to security reasons. The default VPC will not be as secure as other people that have the Sparta login with certain permissions will be able to see the database of the app.
 * The virtual network will be split into 2 subnets. One private and one public.
 * Public subnets will have a range of IP addresses that can range from 56 addresses. For example, an IP address of 10.0.2.0/24 will have the 10.0 locked.
 * Private subnets will also have a range of 56 IP addresses and 256 machines but obv we will be only using 2. For the private subnet, we've used an IP address of 10.0.3.0/24. 
@@ -70,7 +71,7 @@
 * In order to get into these machines, there will be an Internet Gateway.
 * The Internet Gateway is the way to enter the network of our VM. We will have traffic coming in from the internet on HTTP. May also need to SSH in. It will be the same thing.
 * In order the direct the traffic to the correct destination, we need to set up a route table to direct the path.
-* A deafult route table will be created for us already which means we only need to create one.
+* A default route table will be created for us already which means we only need to create one.
 * A router uses a route table to direct traffic.
 * The DEFAULT route table will allow internal traffic so that the app VM and the DB VM would need to talk to each other. 
 * The traffic that involves the communication between the app and the DB is legitimate; meaning the app talking to the DB.
@@ -168,3 +169,8 @@
         * the public route table
         * the private subnet
         * the public subnet
+
+
+* To login to the DB VM, we can do so with the app VM. This is by SSH'ing into the app VM. We would use the default/private DB to enter the DB. This is because the route table handles the connection between the app and the VM. Manages internal connection between VPCs.
+* login to the DB VM using the private IP address using the SSH private key from the app VM into the DB VM.
+* You can autoscale manually into another VM. 
