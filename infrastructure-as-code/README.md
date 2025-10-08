@@ -98,7 +98,7 @@ Two types of IaC tools:
        * Chef 
        * Puppet
        * Ansible 
-2. Orchestration Tools - best for managing infrastructure e.g. creating/deleteing VMs, Security Groups, route tables, anything that needs creating.
+2. Orchestration Tools - best for managing infrastructure e.g. creating/deleting VMs, Security Groups, route tables, anything that needs creating.
     Examples:
         * CloudFormation (AWS)
         * Terraform

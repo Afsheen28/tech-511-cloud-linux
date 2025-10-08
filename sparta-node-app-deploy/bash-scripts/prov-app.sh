@@ -31,7 +31,7 @@ sudo sed -i 's|try_files.*|proxy_pass http://127.0.0.1:3000;|' /etc/nginx/sites-
 echo Done!
 echo
 
-#configure nginx
+#apply changes to nginx
 echo Restart nginx...
 sudo systemctl restart nginx 
 echo Done!

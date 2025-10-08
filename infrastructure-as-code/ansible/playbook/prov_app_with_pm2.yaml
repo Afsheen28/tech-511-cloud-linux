@@ -1,0 +1,86 @@
+---
+- name: install app dependencies and run app
+  hosts: web # run on all hosts in the 'web' group
+  become: true # run tasks with sudo
+  gather_facts: yes # collect system info
+
+  tasks:
+  - name: update apt cache #system setup
+    ansible.builtin.apt:
+      update_cache: yes # updates the packages needed
+
+  - name: remove old Node.js and related packages
+    ansible.builtin.apt:
+      name:
+        - nodejs
+        - npm
+        - libnode-dev
+        - libnode72
+      state: absent # removes old nodejs and npm installations
+      purge: yes # removes configuration files
+
+  - name: autoremove unused packages
+    ansible.builtin.apt:
+      autoremove: yes # cleans up unneeded packages after removal
+
+  - name: clean apt cache
+    ansible.builtin.apt:
+      clean: yes # clears downloaded package files to free space
+
+  - name: fix broken dependencies (if any)
+    ansible.builtin.command: apt-get install -f -y
+    ignore_errors: true # runs apt fix command but ignores errors
+
+  - name: add NodeSource Node.js 20 repo key # installs node
+    ansible.builtin.apt_key:
+      url: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+      state: present
+
+  - name: add NodeSource Node.js 20 repository
+    ansible.builtin.apt_repository:
+      repo: deb https://deb.nodesource.com/node_20.x nodistro main
+      state: present
+      filename: nodesource
+      update_cache: yes #adds the nodesource repo and refreshes the apt cache
+
+  - name: install Node.js 20 (includes npm)
+    ansible.builtin.apt:
+      name: nodejs #installs nodejs 20 (includes npm)
+      state: present
+      update_cache: yes
+
+  - name: install pm2 globally
+    ansible.builtin.npm:
+      name: pm2
+      global: yes
+
+  - name: verify node version # stores the output of "node -v" into a variable
+    ansible.builtin.command: node -v
+    register: node_version
+
+  - debug:
+      var: node_version.stdout #prints out the installed nodejs version
+
+  - name: clone the app repo
+    ansible.builtin.git:
+      repo: https://github.com/Afsheen28/tech511-sparta-app.git
+      dest: /etc/ansible/app
+      version: main
+      update: yes
+      force: yes
+
+  - name: install app dependencies
+    ansible.builtin.npm:
+      path: /etc/ansible/app/app # folder containing package.json
+      production: no #install both production and dev dependencies
+
+  - name: start app with pm2
+    ansible.builtin.command: pm2 start npm --name sparta-app -- start
+    args:
+      chdir: /etc/ansible/app/app #change to app directory before running
+
+  - name: save pm2 process list (so it restarts on reboot)
+    ansible.builtin.command: pm2 save
+
+  - name: enable pm2 startup on boot
+    ansible.builtin.command: pm2 startup systemd -u ubuntu --hp /home/ubuntu

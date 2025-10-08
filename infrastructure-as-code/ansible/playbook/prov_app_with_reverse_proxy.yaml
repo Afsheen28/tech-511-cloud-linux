@@ -1,0 +1,137 @@
+---
+- name: Deploy Sparta App with Node 20, PM2, and Nginx reverse proxy
+  hosts: web
+  become: true
+  gather_facts: yes
+
+  tasks:
+  # -------------------------------------------------------
+  # 1. Install prerequisites
+  # -------------------------------------------------------
+  - name: update apt cache
+    ansible.builtin.apt:
+      update_cache: yes
+
+  - name: upgrade all packages
+    ansible.builtin.apt:
+      upgrade: dist
+
+  - name: Install required packages
+    ansible.builtin.apt:
+      name:
+        - git
+        - curl
+        - nginx
+      state: present
+      update_cache: yes
+
+  # -------------------------------------------------------
+  # 2. Add Node.js 20 repository
+  # -------------------------------------------------------
+  - name: Add NodeSource Node.js 20 repo key
+    ansible.builtin.apt_key:
+      url: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+      state: present
+
+  - name: Add NodeSource Node.js 20 repository
+    ansible.builtin.apt_repository:
+      repo: deb https://deb.nodesource.com/node_20.x nodistro main
+      state: present
+      filename: nodesource
+      update_cache: yes
+
+  - name: Install Node.js 20 (includes npm)
+    ansible.builtin.apt:
+      name: nodejs
+      state: present
+      update_cache: yes
+
+  # -------------------------------------------------------
+  # 3. Clone app repository (force overwrite if it exists)
+  # -------------------------------------------------------
+  - name: Clone Sparta app repository
+    ansible.builtin.git:
+      repo: https://github.com/Afsheen28/tech511-sparta-app.git
+      dest: ~/repo
+      version: main
+      update: yes
+      accept_hostkey: yes
+    become: false
+
+  # -------------------------------------------------------
+  # 4. Install app dependencies
+  # -------------------------------------------------------
+  - name: Install npm dependencies
+    ansible.builtin.npm:
+      path: ~/repo/app
+      production: no
+    become: false
+
+  # -------------------------------------------------------
+  # 5. Install and use PM2 to run the app
+  # -------------------------------------------------------
+  - name: Install PM2 globally
+    ansible.builtin.npm:
+      name: pm2
+      global: yes
+      state: present
+
+  - name: Stop any existing PM2 process for sparta-app
+    ansible.builtin.shell: pm2 delete sparta-app || true
+    args:
+      executable: /bin/bash
+      chdir: ~/repo/app
+    become: false
+
+  - name: Start the app with PM2
+    ansible.builtin.shell: pm2 start app.js --name sparta-app
+    args:
+      chdir: ~/repo/app
+      executable: /bin/bash
+    become: false
+
+  # -------------------------------------------------------
+  # 6. Configure Nginx reverse proxy
+  # -------------------------------------------------------
+  - name: Configure Nginx reverse proxy for Sparta App
+    ansible.builtin.copy:
+      dest: /etc/nginx/sites-available/sparta-app
+      content: |
+        server {
+          listen 80;
+          server_name _;
+          location / {
+            proxy_pass http://localhost:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+          }
+        }
+    notify: Restart Nginx
+
+  - name: Enable Nginx site and disable default
+    ansible.builtin.file:
+      src: /etc/nginx/sites-available/sparta-app
+      dest: /etc/nginx/sites-enabled/sparta-app
+      state: link
+    notify: Restart Nginx
+
+  - name: Remove default Nginx config if it exists
+    ansible.builtin.file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+    notify: Restart Nginx
+
+
+  # -------------------------------------------------------
+  # Handlers
+  # -------------------------------------------------------
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+
+

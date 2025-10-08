@@ -1,0 +1,76 @@
+---
+- name: install app dependencies and run app
+  hosts: web
+  become: true #uses sudo for tasks indicated
+  gather_facts: yes
+
+  tasks:
+  - name: update apt cache
+    ansible.builtin.apt:
+      update_cache: yes
+
+  - name: remove old Node.js and related packages
+    ansible.builtin.apt:
+      name:
+        - nodejs
+        - npm
+        - libnode-dev
+        - libnode72
+      state: absent
+      purge: yes
+
+  - name: autoremove unused packages
+    ansible.builtin.apt:
+      autoremove: yes
+
+  - name: clean apt cache
+    ansible.builtin.apt:
+      clean: yes
+
+  - name: fix broken dependencies (if any)
+    ansible.builtin.command: apt-get install -f -y
+    ignore_errors: true
+
+  - name: add NodeSource Node.js 20 repo key
+    ansible.builtin.apt_key:
+      url: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+      state: present
+
+  - name: add NodeSource Node.js 20 repository
+    ansible.builtin.apt_repository:
+      repo: deb https://deb.nodesource.com/node_20.x nodistro main
+      state: present
+      filename: nodesource
+      update_cache: yes
+
+  - name: install Node.js 20 (includes npm)
+    ansible.builtin.apt:
+      name: nodejs
+      state: present
+      update_cache: yes
+
+  - name: verify node and npm versions
+    ansible.builtin.command: node -v
+    register: node_version
+
+  - debug:
+      var: node_version.stdout
+
+  - name: clone the app repo
+    ansible.builtin.git:
+      repo: https://github.com/Afsheen28/tech511-sparta-app.git
+      dest: /etc/ansible/app
+      version: main
+      update: yes
+      force: yes
+
+  - name: install app dependencies
+    ansible.builtin.npm:
+      path: /etc/ansible/app/app
+      production: no
+
+  - name: start the app
+    ansible.builtin.command: npm start
+    args:
+      chdir: /etc/ansible/app/app
+

@@ -1,0 +1,44 @@
+# starts with --- (three hyphens)
+--- 
+
+# name the play
+- name: install nginx
+  # where do we want to install or run this play
+  hosts: db
+
+  # do we want comprehensive facts from the host
+  gather_facts: yes
+
+  # do we need admin/sudo access
+  become: true
+
+  # instructions/actions known as "tasks"
+  tasks: 
+  - name: update apt cache 
+    ansible.builtin.apt: 
+      update_cache: yes
+
+  - name: upgrade all packages
+    ansible.builtin.apt: 
+      upgrade: dist
+
+  - name: Add GPG key
+    become: true
+    ansible.builtin.apt_key:
+      url: https://www.mongodb.org/static/pgp/server-7.0.asc
+      state: present
+
+  - name: Add the MongoDB repository
+    ansible.builtin.apt_repository:
+      # "ansible_distribution_release" gets value of Ubuntu's codename which was set by "gather_facts: yes" above
+      # it gets the same value as the command "lsb_release -cs" e.g. "jammy"
+      repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/7.0 multiverse"
+      state: present
+      update_cache: yes #update command
+
+  - name: Install MongoDB 7.0
+    ansible.builtin.apt:
+      name: mongodb-org=7.0.6
+      state: present
+
+ 
