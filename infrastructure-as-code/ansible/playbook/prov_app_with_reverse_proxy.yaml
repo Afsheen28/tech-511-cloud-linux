@@ -83,11 +83,14 @@
       chdir: ~/repo/app
     become: false
 
-  - name: Start the app with PM2
+  - name: Start the app with PM2 (with DB_HOST env)
     ansible.builtin.shell: pm2 start app.js --name sparta-app
     args:
       chdir: ~/repo/app
       executable: /bin/bash
+    environment:
+      DB_HOST: "mongodb://172.31.29.38:27017/posts"
+    #notify: Restart Nginx
     become: false
 
   # -------------------------------------------------------
@@ -133,5 +136,7 @@
       ansible.builtin.service:
         name: nginx
         state: restarted
+      environment:
+        DB_HOST: "mongodb://172.31.29.38:27017/posts"
 
 

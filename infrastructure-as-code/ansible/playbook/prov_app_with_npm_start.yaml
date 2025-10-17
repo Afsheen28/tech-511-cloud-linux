@@ -59,18 +59,18 @@
   - name: clone the app repo
     ansible.builtin.git:
       repo: https://github.com/Afsheen28/tech511-sparta-app.git
-      dest: /etc/ansible/app
+      dest: ~/repo/app
       version: main
       update: yes
       force: yes
 
   - name: install app dependencies
     ansible.builtin.npm:
-      path: /etc/ansible/app/app
+      path: ~/repo/app
       production: no
 
   - name: start the app
     ansible.builtin.command: npm start
     args:
-      chdir: /etc/ansible/app/app
+      chdir: ~/repo/app
 

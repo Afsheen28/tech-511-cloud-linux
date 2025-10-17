@@ -1,0 +1,186 @@
+---
+# ===============================================================
+# Play 1: Configure MongoDB on the Database VM
+# ===============================================================
+- name: Configure MongoDB database server
+  hosts: db
+  become: true
+  gather_facts: yes
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Import MongoDB public GPG key
+      ansible.builtin.apt_key:
+        url: https://www.mongodb.org/static/pgp/server-7.0.asc
+        state: present
+
+    - name: Add MongoDB repository
+      ansible.builtin.apt_repository:
+        repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse"
+        state: present
+        filename: mongodb-org-7.0
+
+    - name: Install MongoDB
+      ansible.builtin.apt:
+        name: mongodb-org
+        state: present
+        update_cache: yes
+
+    - name: Update MongoDB bindIp to allow external connections
+      ansible.builtin.lineinfile:
+        path: /etc/mongod.conf
+        regexp: '^ *bindIp:'
+        line: '  bindIp: 0.0.0.0'
+        backup: yes
+
+    - name: Restart and enable MongoDB service
+      ansible.builtin.service:
+        name: mongod
+        state: restarted
+        enabled: yes
+
+# ===============================================================
+# Play 2: Configure Sparta App with Node 20, PM2, and Nginx
+# ===============================================================
+- name: Deploy Sparta App with Node 20, PM2, and Nginx reverse proxy
+  hosts: web
+  become: true
+  gather_facts: yes
+
+  vars:
+    db_host_ip: "172.31.29.38"    # Change this to your actual DB private IP
+
+  tasks:
+    # -------------------------------------------------------
+    # 1. Install prerequisites
+    # -------------------------------------------------------
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - git
+          - curl
+          - nginx
+        state: present
+        update_cache: yes
+
+    # -------------------------------------------------------
+    # 2. Install Node.js 20
+    # -------------------------------------------------------
+    - name: Add NodeSource Node.js 20 repo key
+      ansible.builtin.apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+        state: present
+
+    - name: Add NodeSource Node.js 20 repository
+      ansible.builtin.apt_repository:
+        repo: deb https://deb.nodesource.com/node_20.x nodistro main
+        state: present
+        filename: nodesource
+        update_cache: yes
+
+    - name: Install Node.js 20 (includes npm)
+      ansible.builtin.apt:
+        name: nodejs
+        state: present
+        update_cache: yes
+
+    # -------------------------------------------------------
+    # 3. Clone app repository
+    # -------------------------------------------------------
+    - name: Clone Sparta app repository
+      ansible.builtin.git:
+        repo: https://github.com/Afsheen28/tech511-sparta-app.git
+        dest: ~/repo
+        version: main
+        update: yes
+        accept_hostkey: yes
+      become: false
+
+    # -------------------------------------------------------
+    # 4. Install npm dependencies
+    # -------------------------------------------------------
+    - name: Install npm dependencies
+      ansible.builtin.npm:
+        path: ~/repo/app
+        production: no
+      become: false
+
+    # -------------------------------------------------------
+    # 5. Install and use PM2 to run the app
+    # -------------------------------------------------------
+    - name: Install PM2 globally
+      ansible.builtin.npm:
+        name: pm2
+        global: yes
+        state: present
+
+    - name: Stop any existing PM2 process for sparta-app
+      ansible.builtin.shell: pm2 delete sparta-app || true
+      args:
+        executable: /bin/bash
+        chdir: ~/repo/app
+      become: false
+
+    - name: Start the app with PM2 and DB connection
+      ansible.builtin.shell: pm2 start app.js --name sparta-app --update-env
+      args:
+        chdir: ~/repo/app
+        executable: /bin/bash
+      environment:
+        DB_HOST: "mongodb://{{ db_host_ip }}:27017/posts"
+      become: false
+
+    # -------------------------------------------------------
+    # 6. Configure Nginx reverse proxy
+    # -------------------------------------------------------
+    - name: Configure Nginx reverse proxy for Sparta App
+      ansible.builtin.copy:
+        dest: /etc/nginx/sites-available/sparta-app
+        content: |
+          server {
+            listen 80;
+            server_name _;
+            location / {
+              proxy_pass http://localhost:3000;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+              proxy_cache_bypass $http_upgrade;
+            }
+          }
+      notify: Restart Nginx
+
+    - name: Enable Nginx site and disable default
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/sparta-app
+        dest: /etc/nginx/sites-enabled/sparta-app
+        state: link
+      notify: Restart Nginx
+
+    - name: Remove default Nginx config if it exists
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

@@ -1,0 +1,52 @@
+---
+- name: Configure MongoDB database server
+  hosts: db
+  become: true
+  gather_facts: yes
+
+  tasks:
+  - name: update apt cache
+    ansible.builtin.apt:
+      update_cache: yes
+
+  - name: upgrade all packages
+    ansible.builtin.apt:
+      upgrade: dist
+  
+  - name: install gnupg and curl
+    ansible.builtin.apt:
+        name:
+          - gnupg
+          - curl
+        state: present
+        update_cache: yes
+
+  - name: Import MongoDB public GPG key
+    ansible.builtin.apt_key:
+      url: https://www.mongodb.org/static/pgp/server-7.0.asc
+      state: present
+
+  - name: Add MongoDB repository
+    ansible.builtin.apt_repository:
+      repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse"
+      state: present
+      filename: mongodb-org-7.0
+
+  - name: Install MongoDB
+    ansible.builtin.apt:
+      name: mongodb-org
+      state: present
+      update_cache: yes
+
+  - name: Update MongoDB bindIp to allow external connections
+    ansible.builtin.lineinfile:
+      path: /etc/mongod.conf
+      regexp: '^ *bindIp:'
+      line: '  bindIp: 0.0.0.0'
+      backup: yes
+
+  - name: Restart and enable MongoDB service
+    ansible.builtin.service:
+      name: mongod
+      state: restarted
+      enabled: yes

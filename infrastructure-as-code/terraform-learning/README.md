@@ -103,8 +103,10 @@ Examples:
   * terraform plan: non-destructive. Shows the console the plan before running the code.
   * terraform destroy: destructive. Destroys/terminates the code.
   * terraform apply: destructive. Applies the changes made and runs the code if changes are made.
+  * terraform fmt: non-destructive. Formats the terraform code.
 * The apply/destroy command can be done on AWS, Azure, GCP, while using the provider file and going through the APIs. Other tools will also go through APIs.
 * AWS Console will also go through APIs.
+* Destructive code means that it changes the infrastructure. 
 
 ## What is a configuration drift?
 ![alt text](image-1.png)
@@ -112,7 +114,7 @@ Examples:
 * However, a software that would be used to fix the config file back will all the required configurations would the Configuration Management tools (like Ansible).
 * If someone accidentally renames instance, then orchestration tools would be applied here.
 
-Task 1: Created an app VM ONLY using Terraform
+## Task 1: Created an app VM ONLY using Terraform
 * We first had to make the required instance name including the key-pair value, image name (22.04), t3.micro, set the ami and the subnet id to the default one and also created variables for credentials and put them in a separate file. 
 * We made sure to set up a public ip address so that the app can be accessed easily.
 * We added user data but without the DB_HOST environmental variable as we only wanted access to the app for now:
@@ -124,7 +126,7 @@ Task 1: Created an app VM ONLY using Terraform
 Blockers:
 * One blocker I had while trying to get my app running was that the website would not work for me. There was no error message in hindsight and I had placed my security groups in correctly too. After futher investigation I found out that, I had incorrectly inserted my user data and added indentations accidentally that didn't get my app running. Once I removed my error, the app started running. 
 
-Task 2: Created the database VM to get the /posts app running
+## Task 2: Created the database VM to get the /posts app running
 * For this task, I needed to create another db instance with the same settings as the app one but making sure the public IP address is not made. 
 * I also had to set up the db AMI making sure I am connecting the db AMI ID to my AMI ID in the main.tf file. 
 * Along with the security rules, I had to make sure that I allow DB access only from the app sg.
@@ -139,14 +141,14 @@ Task 2: Created the database VM to get the /posts app running
 Blockers:
 * When I was trying to get the app and the database running, I realised that my user data had a missing " in my code. When I got that working the database started running too.
 
-Task 3: Created the app and database VM to get the /posts page working using a custom VPC
+## Task 3: Created the app and database VM to get the /posts page working using a custom VPC
 * For this task, I needed to create a custome VPC that connects to my AMI, along with 2 subnets (one private and one public), a public route table and the internet gateway. I made it in this order. Even though Terraform takes control of the journey, for my personal understanding, I did it in this way. 
 * I had to create the same security groups as both VM needed before and linked everything to its respective ID. 
 * For the CIDR blocks for each subnet, the public one was 10.0.1.0/24 and the private one was 10.0.2.0/24.
 * The VPC was 10.0.0.0/16.
 * I made sure there was a connection the subnets had to the route table and then ran it. 
 
-Key Notes:
+## Key Notes:
 
 * Before committing, make sure that the variables.tf file is hidden since that it has the credentials.
 * Terraform is going to look at every .tf folder and run the code altogether in the current folder you're in.
@@ -156,3 +158,4 @@ Key Notes:
 * In our .gitignore file, we should have our tf.state files, variables.tf file and the .terraform folder as it has provider details and it also quite big and could possibly have credentials. 
 * When creating the custom VPC, you need to follow the order of creating the custom VPC, so that it's easier to understand. Even though terraform takes care of the order, it is necessary for you to make sure that everything is created in order. For example, vpc, 2 subnets, route table, internet gateway.
  ~/Github/tech511-cloud-linux/infrastructure-as-code/terraform-learning/create-test-vm-sg
+

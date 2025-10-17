@@ -35,3 +35,40 @@ blockers/errors:
 * Many errors I had was because there was already a cloned repo with a name and when running the script it couldn't clone since there was already something inside. 
 * I complicated the code a lot which made it really confusing.
 * Once the YAML ran with no errors, I had to run the website and it worked but with no Sparta logo. Solution was to create a new app target node.
+
+## Task 2: Create and run playbook to provision DB VM
+
+## Stage 1: Getting the db working on old nodes
+* In order to do this, I created a prov_db.yaml and included tasks where I needed to add the mongod repository. I needed to add DB_HOST environmental variable that lets the app connect to the db using the db VM's private IP address.
+* My biggest error was that I couldn't save the DB_HOST enviornmental variable on the playbook due to permission issues.
+* I fixed this by typing in `sudo nano filename.yaml` to edit the playbook and it worked.
+* I then ran the playbook and once everything worked, I combined the app playbook and the db playbook into one playbook.
+
+## Stage 2: Getting the app + db working on new nodes
+* I ran the prov_app_all.yaml playbook after creating two new nodes.
+* I created the app and db node. I used default VPC, default AMI and the same SG as the nodes before. No user data was entered in the app node.
+* Then I `sudo nano hosts` and changed the IP addresses of the new nodes along with checking it's connection with `ansible web -m ping` and `ansible db -m ping`. Once I got the "Success" message, I created a new file for the prov_app_all.yaml and copy+pasted the playbook and ran it. 
+* After I ran the playbook, the app worked but the db didn't because the database hadn't seeded the data. In order to fix this, I could have created another task in the playbook to seed the data but I went to the app VM, SSH'd into it and ran this command: `cd ~/repo/app`
+`DB_HOST="mongodb://172.31.29.38:27017/posts" node seeds/seed.js`.
+* This seeded the data and the /posts page started working.
+
+## Stage 3: Master Playbook
+
+### Purpose:
+* To orchestrate provisioning of MongoDB and Sparta App in separate, modular playbooks.
+
+### Command:
+`ansible-playbook master-playbook.yaml`
+
+### Behavior:
+
+* Playbooks run sequentially, not in parallel.
+
+* If prov_db.yaml fails, prov_app_with_reverse_proxy.yaml will not run.
+
+* If both succeed, the /posts page should display seeded data.
+
+### Errors:
+* Had to reseed the data so went back to the app VM and ran that line of code again (`DB_HOST="mongodb://172.31.29.38:27017/posts" node seeds/seed.js`).
+* Once I ran it, the data still did not load because I forgot to change the new IP address from the prov_app_with_reverse_proxy.yaml. Once I changed that, it worked.
+

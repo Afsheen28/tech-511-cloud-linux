@@ -94,13 +94,14 @@ Some errors I got while doing this task was that I couldn't try to get Ansible i
 * Ping is a module
 * web is the group.
 * Ad-hoc commands: 
+* Quick one-off tasks that don't need playbooks to be written and run.
 * ansible web -a "uname -a" : arguement command that specifies with a module. Is the equivalent to specify  
 * ansible web -m ansible.builtin.command -a "uname -a" : Does the same thing as the command before.
 * ansible web -m command -a "uname-a" does the same thing as previous 2. 
 * Uses default/in built in command module if module is not specified in the command. 
 * If you use Shell commands for the shell module, the command would not be idempotent(get the same result each time). This means configuration, deployment, etc.
 *  Have to use different modules in the commands to allow to get Ansible idempotent. 
-*  Don't use shell or command modules that are not idempotent. 
+*  Don't use `shell` or `command` modules that are not idempotent. 
 *  "ansible web -a "apt-get update -y" --become": is not idempotent but updates the target node (app VM).
 *  ansible web -m apt -a "update_cache=yes" --become: idempotent command that updates the target node. 
 *  ansible web -m ansible.builtin.apt -a "upgrade=dist" --become: upgrades the target node.
